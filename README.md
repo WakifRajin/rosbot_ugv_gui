@@ -10,8 +10,9 @@ This repository contains the ROS2 humble workspace for a HUSARION ugv. It includ
 ## Getting Started
 
 ```
+mkdir -p ros2_ws
+cd ros2_ws
 git clone https://github.com/wakifrajin/rosbot_ugv_gui.git
-cd erc_ws
 colcon build
 source install/setup.bash
 ```

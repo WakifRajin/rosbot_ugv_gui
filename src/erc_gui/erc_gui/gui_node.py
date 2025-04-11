@@ -40,7 +40,7 @@ class CameraControlGUI(Node):
     def __init__(self, camera_label, battery_bar, status_label):
         super().__init__('erc_camera_gui')
         self.bridge = CvBridge()
-        self.camera_topic = '/camera/image_raw'
+        self.camera_topic = '/camera/color/image_raw'
         self.camera_label = camera_label
         self.battery_bar = battery_bar
         self.latest_image = None

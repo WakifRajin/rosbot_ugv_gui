@@ -4,6 +4,7 @@ import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image, BatteryState
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import TwistStamped
 from cv_bridge import CvBridge
 import cv2
 from PyQt5.QtWidgets import (
@@ -13,6 +14,7 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtGui import QImage, QPixmap, QColor, QLinearGradient, QPainter, QFont, QPen
 from PyQt5.QtCore import Qt, QTimer, QPoint
 from rclpy.qos import QoSProfile
+from builtin_interfaces.msg import Time
 
 
 class CyberpunkFrame(QWidget):
@@ -49,7 +51,7 @@ class CameraControlGUI(Node):
 
         self.create_subscription(Image, self.camera_topic, self.image_callback, 10)
         self.create_subscription(BatteryState, '/battery/battery_status', self.battery_callback, 10)
-        self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.cmd_vel_pub = self.create_publisher(TwistStamped, '/cmd_vel', 10)
 
         #status labeler
         self.status_timer = QTimer()
@@ -62,7 +64,7 @@ class CameraControlGUI(Node):
         self.battery_bar.setValue(percentage)
 
     def check_cmd_vel_connection(self):
-        info = self.get_publishers_info_by_topic('/battery/battery_status')
+        info = self.get_publishers_info_by_topic('/cmd_vel')
         if info:  # if anyone is subscribed or publishing
             self.status_label.setText("🟢 Connected")
             self.status_label.setStyleSheet("color: lightgreen; font-weight: bold; font-size: 16px;")
@@ -105,10 +107,11 @@ class CameraControlGUI(Node):
         self.camera_label.setPixmap(pixmap)
 
     def send_cmd(self, linear_x=0.0, angular_z=0.0):
-        twist = Twist()
-        twist.linear.x = linear_x
-        twist.angular.z = angular_z
-        self.cmd_vel_pub.publish(twist)
+        twist_stamped = TwistStamped()
+        twist_stamped.header.stamp = self.get_clock().now().to_msg()
+        twist_stamped.twist.linear.x = linear_x
+        twist_stamped.twist.angular.z = angular_z
+        self.cmd_vel_pub.publish(twist_stamped)
 
 
 def create_main_window():
